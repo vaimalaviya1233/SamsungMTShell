@@ -1,7 +1,3 @@
-This poc gets a system-uid reverse shell.   
+# SamsungTTSSystemShell
 
-If you want to change the remote IP and port for the reverse shell, please modify solib/jni/libmstring/mstring.c ip variable.
-
-Detailed writeup can be found at https://blog.flanker017.me/text-to-speech-speaks-pwned/
-
-Tested on Galaxy Series.
+This project is a fork of [SMT-CVE-2019-16253](https://github.com/flankerhqd/vendor-android-cves/tree/master/SMT-CVE-2019-16253). Due to the original repo containing multiple unrelated projects, this fork's git history was rewritten using `git filter-repo` so that it only contains the relevant code (and no prebuilt artifacts).
