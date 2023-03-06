@@ -11,7 +11,7 @@ public class MyService extends Service {
     public void onCreate() {
         super.onCreate();
 
-        final String input = this.getApplicationInfo().nativeLibraryDir + "/" + "libmstring.so";
+        final String input = this.getApplicationInfo().nativeLibraryDir + "/" + "libsmtshell.so";
 
         Intent bi = new Intent();
         bi.setAction("com.samsung.SMT.ACTION_INSTALL_FINISHED");
