@@ -4,9 +4,11 @@ This tool allows most Samsung devices to achieve a `system` shell (UID 1000). It
 
 ## Usage
 
-1. Downgrade the TTS app to the version provided in this repo (this must be done after every reboot). `adb install -d ./com.samsung.SMT_v3.0.02.2.apk`
-2. Run this command to wait for the reverse shell: `adb shell nc -l -p 9999`
-3. Install and open the `langpoc` app.
+1. Downgrade the TTS app to the version provided in this repo (this must be done after every reboot).  
+    `adb install -d ./com.samsung.SMT_v3.0.02.2.apk`
+2. Run this command to wait for the reverse shell:  
+    `adb shell nc -l -p 9999`
+3. Install and open the `SMT Shell` app.
 
 ## Licence & Origin
 
