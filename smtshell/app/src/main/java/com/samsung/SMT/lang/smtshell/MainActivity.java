@@ -1,6 +1,5 @@
 package com.samsung.SMT.lang.smtshell;
 
-import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -8,6 +7,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
+import android.support.v7.app.AppCompatActivity;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
  * This only needs to support Android 9.0 (API 28) and higher anyway.
  */
 @RequiresApi(api = Build.VERSION_CODES.N)
-public class MainActivity extends Activity {
+public class MainActivity extends AppCompatActivity {
 
     private TextView mTextView;
     private ListView mListView;
