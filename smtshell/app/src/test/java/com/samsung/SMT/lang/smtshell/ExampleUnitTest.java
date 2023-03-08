@@ -1,4 +1,4 @@
-package com.samsung.SMT.lang.poc;
+package com.samsung.SMT.lang.smtshell;
 
 import org.junit.Test;
 
