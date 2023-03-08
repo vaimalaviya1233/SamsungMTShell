@@ -3,11 +3,11 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 33
     defaultConfig {
-        applicationId "com.samsung.SMT.lang.poc"
-        minSdkVersion 14
+        applicationId "com.samsung.SMT.lang.smtshell"
+        minSdkVersion 14 // must be 22 or lower for the exploit to work
         targetSdkVersion 33
-        versionCode 1
-        versionName "1.0"
+        versionCode 2
+        versionName "1.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
             ndkBuild {

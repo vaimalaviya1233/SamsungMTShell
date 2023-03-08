@@ -1,3 +1,5 @@
 <resources>
-    <string name="app_name">lang.poc</string>
+    <string name="app_name">SMT Shell</string>
+    <string name="app_conflict_prompt">The apps below are in conflict with SMT Shell, and will prevent the exploit from running, please tap to remove each of them.</string>
+    <string name="no_conflicts">No conflicting apps found. Exploit has been executed; please check your reverse shell.</string>
 </resources>
