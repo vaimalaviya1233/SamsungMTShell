@@ -2,4 +2,11 @@
     <string name="app_name">SMT Shell</string>
     <string name="app_conflict_prompt">The apps below are in conflict with SMT Shell, and will prevent the exploit from running, please tap to remove each of them.</string>
     <string name="no_conflicts">No conflicting apps found. Exploit has been executed; please check your reverse shell.</string>
+    <string name="exploit_prompt">Tap the button below to trigger the exploit and execute a reverse shell (on port 9999).</string>
+    <string name="exploit">Exploit</string>
+    <string name="exploit_with_shizuku">Exploit with Shizuku</string>
+    <string name="downgrade_smt">Downgrade SMT</string>
+    <string name="downgrade_smt_prompt_shizuku">Before triggering the exploit, you must downgrade the Samsung SMT app to a vulnerable version. You may do this automatically by tapping the button below.</string>
+    <string name="downgrade_smt_prompt">Before triggering the exploit, you must downgrade the Samsung SMT app to a vulnerable version. Please see the README for instructions, or grant Shizuku permissions to do this automatically. When done, tap below to continue.</string>
+    <string name="proceed">proceed</string>
 </resources>
