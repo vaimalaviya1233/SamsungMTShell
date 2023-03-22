@@ -17,7 +17,7 @@ import java.util.ArrayList;
  * We need to keep the minSdkVersion at 22 or lower, so use @RequiresApi to use newer stuff.
  * This only needs to support Android 9.0 (API 28) and higher anyway.
  */
-@RequiresApi(api = Build.VERSION_CODES.N)
+@RequiresApi(api = Build.VERSION_CODES.P)
 public class ConflictActivity extends AppCompatActivity {
 
     private TextView mTextView;
@@ -30,7 +30,7 @@ public class ConflictActivity extends AppCompatActivity {
         mTextView = findViewById(R.id.text);
         mListView = findViewById(R.id.list);
         if (resolvePackageConflicts()) {
-            launchMain();
+            ActivityUtils.launchNewTask(this, MainActivity.class);
         }
     }
 
@@ -42,15 +42,8 @@ public class ConflictActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resolvePackageConflicts()) {
-            launchMain();
+            ActivityUtils.launchNewTask(this, MainActivity.class);
         }
-    }
-
-    private void launchMain() {
-        Intent intent = new Intent(this, MainActivity.class);
-        // prevent annoying UX for user, if they tap back
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
     }
 
     private boolean resolvePackageConflicts() {

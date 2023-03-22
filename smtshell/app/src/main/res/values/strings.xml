@@ -9,4 +9,7 @@
     <string name="downgrade_smt_prompt_shizuku">Before triggering the exploit, you must downgrade the Samsung SMT app to a vulnerable version. You may do this automatically by tapping the button below.</string>
     <string name="downgrade_smt_prompt">Before triggering the exploit, you must downgrade the Samsung SMT app to a vulnerable version. Please see the README for instructions, or grant Shizuku permissions to do this automatically. When done, tap below to continue.</string>
     <string name="proceed">proceed</string>
+    <string name="example_title">Short Title</string>
+    <string name="example_details">This is some longer detail about this button. Maybe the text will even wrap around the screen.</string>
+    <string name="example_btn">click me</string>
 </resources>

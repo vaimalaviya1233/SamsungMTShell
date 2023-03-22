@@ -1,12 +1,15 @@
 package com.samsung.SMT.lang.smtshell;
 
-import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
@@ -19,12 +22,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.samsung.SMT.lang.smtshell.shizuku.PackageInstallerUtils;
 
 import rikka.shizuku.Shizuku;
+import smtshell.api.SMTShellAPI;
 
 /**
  * We need to keep the minSdkVersion at 22 or lower, so use @RequiresApi to use newer stuff.
  * This only needs to support Android 9.0 (API 28) and higher anyway.
  */
-@RequiresApi(api = Build.VERSION_CODES.N)
+@RequiresApi(api = Build.VERSION_CODES.P)
 public class MainActivity extends AppCompatActivity {
 
     private static final int REQUEST_CODE_SHIZUKU = 9000;
@@ -59,6 +63,28 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private final BroadcastReceiver mApiReadyReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.i(TAG, "client got ready msg");
+            setSpinner(false);
+            ActivityUtils.launchNewTask(MainActivity.this, AllTheButtons.class);
+        }
+    };
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        registerReceiver(mApiReadyReceiver, new IntentFilter(SMTShellAPI.ACTION_API_READY));
+        SMTShellAPI.ping(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(mApiReadyReceiver);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,10 +99,7 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
 
         if (ConflictUtil.hasConflicts(this)) {
-            Intent intent = new Intent(this, ConflictActivity.class);
-            // prevent annoying UX for user, if they tap back
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
+            ActivityUtils.launchNewTask(MainActivity.this, ConflictActivity.class);
             return;
         }
 
@@ -99,21 +122,25 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    void setSpinner(boolean on) {
+        mExploitBtn.setEnabled(!on);
+        mSpinner.setProgress(0);
+        mSpinner.setVisibility(on ? View.VISIBLE : View.INVISIBLE);
+    }
+
     private void onReady(boolean shizuku) {
         if (shizuku && !isVulnerableSMT()) {
             mTextView.setText(R.string.downgrade_smt_prompt_shizuku);
             mExploitBtn.setText(R.string.downgrade_smt);
             mExploitBtn.setOnClickListener(v -> {
-                mExploitBtn.setEnabled(false);
-                mSpinner.setProgress(0);
-                mSpinner.setVisibility(View.VISIBLE);
+                setSpinner(true);
                 AsyncTask.execute(() -> {
                     boolean success = downgradeSMT();
                     runOnUiThread(() -> {
                         if (!success) {
                             Toast.makeText(this, "failed to downgrade!", Toast.LENGTH_SHORT).show();
                         }
-                        mSpinner.setVisibility(View.INVISIBLE);
+                        setSpinner(false);
                         onReady(true);
                     });
                 });
@@ -129,6 +156,7 @@ public class MainActivity extends AppCompatActivity {
             mTextView.setText(R.string.exploit_prompt);
             mExploitBtn.setText(R.string.exploit);
             mExploitBtn.setOnClickListener(v -> {
+                setSpinner(true);
                 exploit();
                 Toast.makeText(this, "Exploit triggered!", Toast.LENGTH_SHORT).show();
             });
@@ -162,6 +190,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void exploit() {
+        MyService.allow = true;
         Intent intent = new Intent();
         intent.setComponent(new ComponentName("com.samsung.SMT", "com.samsung.SMT.SamsungTTSService"));
         startService(intent);

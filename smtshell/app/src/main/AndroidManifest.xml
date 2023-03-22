@@ -3,6 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.samsung.SMT.lang.smtshell">
 
+    <permission android:name="smtshell.permission.SELF" android:protectionLevel="signature" />
+    <uses-permission android:name="smtshell.permission.SELF" />
+
+    <permission android:name="smtshell.permission.SYSTEM_COMMAND" android:protectionLevel="dangerous" />
+    <permission android:name="smtshell.permission.LOAD_LIBRARY" android:protectionLevel="dangerous" />
+
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"
         tools:ignore="QueryAllPackagesPermission" />
     <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
@@ -29,10 +35,14 @@
         <activity android:name=".ConflictActivity"
             android:exported="false" />
 
+        <activity android:name=".AllTheButtons"
+            android:exported="false" />
+
         <service
             android:name="com.samsung.SMT.lang.smtshell.MyService"
             android:enabled="true"
-            android:exported="true">
+            android:exported="true"
+            android:permission="android.permission.REBOOT">
             <intent-filter>
                 <action android:name="com.samsung.SMT.lang.smtshell" />
             </intent-filter>
