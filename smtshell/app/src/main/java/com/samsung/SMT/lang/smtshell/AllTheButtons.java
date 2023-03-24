@@ -16,10 +16,11 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
+import net.blufenix.smtshell.api.InternalAPI;
+import net.blufenix.smtshell.api.SMTShellAPI;
+
 import java.util.ArrayList;
 import java.util.Arrays;
-
-import smtshell.api.SMTShellAPI;
 
 @RequiresApi(api = Build.VERSION_CODES.P)
 public class AllTheButtons extends AppCompatActivity {
@@ -29,7 +30,7 @@ public class AllTheButtons extends AppCompatActivity {
                     "Kill SMT Shell API",
                     "Clears application data for com.samsung.SMT, disabling all payloads and allowing the exploit to run again.",
                     "Kill", v -> {
-                SMTShellAPI.killAPI(this, success -> {
+                InternalAPI.killAPI(this, success -> {
                     ActivityUtils.launchNewTask(this, MainActivity.class);
                 });
             }),
@@ -74,6 +75,12 @@ public class AllTheButtons extends AppCompatActivity {
                     null,
                     "Launch", v -> {
                 SMTShellAPI.executeCommand(this, "am start -n com.android.settings/.development.DSULoader");
+            }),
+            new SMTCapability(
+                    "Spawn DSU Notification",
+                    "Spawns a notification in the system tray that allows a selected DSU to be discarded.",
+                    "Launch", v -> {
+                SMTShellAPI.executeCommand(this, "am start -n com.android.dynsystem/.VerificationActivity");
             })
     ));
 

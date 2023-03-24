@@ -1,39 +1,33 @@
-import static android.content.Context.ACTIVITY_SERVICE;
-import static rikka.shizuku.SystemServiceHelper.getSystemService;
-import static smtshell.api.SMTShellAPI.ACTION_API_DEATH_NOTICE;
-import static smtshell.api.SMTShellAPI.ACTION_API_PING;
-import static smtshell.api.SMTShellAPI.ACTION_API_READY;
-import static smtshell.api.SMTShellAPI.ACTION_DEACTIVATE;
-import static smtshell.api.SMTShellAPI.ACTION_LOAD_LIBRARY;
-import static smtshell.api.SMTShellAPI.ACTION_LOAD_LIBRARY_RESULT;
-import static smtshell.api.SMTShellAPI.ACTION_SHELL_COMMAND;
-import static smtshell.api.SMTShellAPI.ACTION_SHELL_RESULT;
-import static smtshell.api.SMTShellAPI.EXTRA_CALLBACK_PKG;
-import static smtshell.api.SMTShellAPI.EXTRA_COMMAND;
-import static smtshell.api.SMTShellAPI.EXTRA_EXIT_CODE;
-import static smtshell.api.SMTShellAPI.EXTRA_LIBRARY_PATH;
-import static smtshell.api.SMTShellAPI.EXTRA_LOAD_SUCCESS;
-import static smtshell.api.SMTShellAPI.EXTRA_REQUEST_ID;
-import static smtshell.api.SMTShellAPI.EXTRA_STDERR;
-import static smtshell.api.SMTShellAPI.EXTRA_STDOUT;
-import static smtshell.api.SMTShellAPI.PERMISSION_LOAD_LIBRARY;
-import static smtshell.api.SMTShellAPI.PERMISSION_RECEIVER_GUARD;
-import static smtshell.api.SMTShellAPI.PERMISSION_SELF;
-import static smtshell.api.SMTShellAPI.PERMISSION_SYSTEM_COMMAND;
+import static net.blufenix.smtshell.api.InternalAPI.ACTION_DEACTIVATE;
+import static net.blufenix.smtshell.api.InternalAPI.PERMISSION_SELF;
+import static net.blufenix.smtshell.api.SMTShellAPI.ACTION_API_DEATH_NOTICE;
+import static net.blufenix.smtshell.api.SMTShellAPI.ACTION_API_PING;
+import static net.blufenix.smtshell.api.SMTShellAPI.ACTION_API_READY;
+import static net.blufenix.smtshell.api.SMTShellAPI.ACTION_LOAD_LIBRARY;
+import static net.blufenix.smtshell.api.SMTShellAPI.ACTION_LOAD_LIBRARY_RESULT;
+import static net.blufenix.smtshell.api.SMTShellAPI.ACTION_SHELL_COMMAND;
+import static net.blufenix.smtshell.api.SMTShellAPI.ACTION_SHELL_RESULT;
+import static net.blufenix.smtshell.api.SMTShellAPI.EXTRA_CALLBACK_PKG;
+import static net.blufenix.smtshell.api.SMTShellAPI.EXTRA_COMMAND;
+import static net.blufenix.smtshell.api.SMTShellAPI.EXTRA_EXIT_CODE;
+import static net.blufenix.smtshell.api.SMTShellAPI.EXTRA_LIBRARY_PATH;
+import static net.blufenix.smtshell.api.SMTShellAPI.EXTRA_LOAD_SUCCESS;
+import static net.blufenix.smtshell.api.SMTShellAPI.EXTRA_REQUEST_ID;
+import static net.blufenix.smtshell.api.SMTShellAPI.EXTRA_STDERR;
+import static net.blufenix.smtshell.api.SMTShellAPI.EXTRA_STDOUT;
+import static net.blufenix.smtshell.api.SMTShellAPI.PERMISSION_LOAD_LIBRARY;
+import static net.blufenix.smtshell.api.SMTShellAPI.PERMISSION_SYSTEM_COMMAND;
 
 import android.annotation.SuppressLint;
-import android.app.ActivityManager;
 import android.app.Application;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentSender;
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
-import android.preference.PreferenceManager;
 import android.util.Log;
 
 import androidx.annotation.RequiresApi;
@@ -42,13 +36,14 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.HashSet;
 
 @SuppressLint("PrivateApi")
 @RequiresApi(api = Build.VERSION_CODES.P)
 public class SystemEntrypoint {
 
     private static final String TAG = "SMTShell";
-
+    private static final HashSet<BroadcastReceiver> sRegisteredReceivers = new HashSet<>();
     private static Application sAppContext;
 
     public static void main(String[] args) {
@@ -62,85 +57,38 @@ public class SystemEntrypoint {
 
         Log.i(TAG, "registering broadcast receivers ...");
 
-        // commands from our own app
-        sAppContext.registerReceiver(new CommandReceiver(),
-                new IntentFilter(ACTION_SHELL_COMMAND),
-                PERMISSION_SELF, null);
+        // commands
+        register(new CommandReceiver(), ACTION_SHELL_COMMAND, PERMISSION_SELF);
+        register(new CommandReceiver(), ACTION_SHELL_COMMAND, PERMISSION_SYSTEM_COMMAND);
 
-        // commands from other apps
-        sAppContext.registerReceiver(new CommandReceiver(),
-                new IntentFilter(ACTION_SHELL_COMMAND),
-                PERMISSION_SYSTEM_COMMAND, null);
+        // load library requests
+        register(new LoadLibraryReceiver(), ACTION_LOAD_LIBRARY, PERMISSION_SELF);
+        register(new LoadLibraryReceiver(), ACTION_LOAD_LIBRARY, PERMISSION_LOAD_LIBRARY);
 
-        // commands from ADB shell
-        sAppContext.registerReceiver(new CommandReceiver(),
-                new IntentFilter(ACTION_SHELL_COMMAND),
-                PERMISSION_RECEIVER_GUARD, null);
+        // API pings (no permission needed)
+        register(new PingReceiver(), ACTION_API_PING, null);
 
-        // load library requests from our own app
-        sAppContext.registerReceiver(new LoadLibraryReceiver(),
-                new IntentFilter(ACTION_LOAD_LIBRARY),
-                PERMISSION_SELF, null);
+        // internal receiver to kill the API
+        register(new KillReceiver(), ACTION_DEACTIVATE, PERMISSION_SELF);
 
-        // load library requests from other apps
-        sAppContext.registerReceiver(new LoadLibraryReceiver(),
-                new IntentFilter(ACTION_LOAD_LIBRARY),
-                PERMISSION_LOAD_LIBRARY, null);
-
-        // load library requests from ADB shell
-        sAppContext.registerReceiver(new LoadLibraryReceiver(),
-                new IntentFilter(ACTION_LOAD_LIBRARY),
-                PERMISSION_RECEIVER_GUARD, null);
-
-        // API pings (unprotected because they don't really do anything sensitive)
-        BroadcastReceiver ping = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                IntentSender sender = intent.getParcelableExtra(EXTRA_CALLBACK_PKG);
-                if (sender == null) {
-                    Log.e(TAG, "no sender specified; will not receive results");
-                } else {
-                    String pkg = sender.getCreatorPackage();
-                    sAppContext.sendBroadcast(new Intent(ACTION_API_READY).setPackage(pkg));
-                }
-            }
-        };
-        sAppContext.registerReceiver(ping, new IntentFilter(ACTION_API_PING));
-
-        sAppContext.registerReceiver(new BroadcastReceiver() {
-             @Override
-             public void onReceive(Context context, Intent intent) {
-                 // disable ping so we don't see the service alive anymore
-                 sAppContext.unregisterReceiver(ping);
-                 // clear the app preferences that cause us to be loaded
-                 sAppContext.getSharedPreferences("SamsungTTSSettings", 0).edit().clear().commit();
-
-                 // notify the caller
-                 IntentSender sender = intent.getParcelableExtra(EXTRA_CALLBACK_PKG);
-                 if (sender == null) {
-                     Log.w(TAG, "no sender specified; will not receive results");
-                 } else {
-                     String pkg = sender.getCreatorPackage();
-                     sAppContext.sendBroadcast(new Intent(ACTION_API_DEATH_NOTICE).setPackage(pkg));
-                 }
-
-                 // use pm clear to kill the process because the TTS service like to come back to life
-                 //  if we stop it any other way
-                 new Handler(sAppContext.getMainLooper()).postDelayed(() -> {
-                     try {
-                         Runtime.getRuntime().exec("pm clear com.samsung.SMT");
-                     } catch (IOException e) {
-                         throw new RuntimeException(e);
-                     }
-                 }, 1000);
-             }
-         }, new IntentFilter(ACTION_DEACTIVATE), PERMISSION_SELF, null);
-
-        // send initial ping
+        // send initial ping to our app only
         Log.i(TAG, "sending ready msg");
         sAppContext.sendBroadcast(new Intent(ACTION_API_READY).setPackage("com.samsung.SMT.lang.smtshell"));
 
         Log.i(TAG, "API ready");
+    }
+
+    private static BroadcastReceiver register(BroadcastReceiver receiver, String action, String permission) {
+        sAppContext.registerReceiver(receiver, new IntentFilter(action), permission, null);
+        sRegisteredReceivers.add(receiver);
+        return receiver;
+    }
+
+    private static void unregisterAll() {
+        for (BroadcastReceiver br : sRegisteredReceivers) {
+            sAppContext.unregisterReceiver(br);
+        }
+        sRegisteredReceivers.clear();
     }
 
     private static Application getAppContext() throws ReflectiveOperationException {
@@ -154,6 +102,19 @@ public class SystemEntrypoint {
             isOut.lines().forEach(s -> sb.append(s).append("\n"));
         }
         return sb.toString();
+    }
+
+    private static class PingReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            IntentSender sender = intent.getParcelableExtra(EXTRA_CALLBACK_PKG);
+            if (sender == null) {
+                Log.e(TAG, "no sender specified; will not receive results");
+            } else {
+                String pkg = sender.getCreatorPackage();
+                sAppContext.sendBroadcast(new Intent(ACTION_API_READY).setPackage(pkg));
+            }
+        }
     }
 
     private static class CommandReceiver extends BroadcastReceiver {
@@ -244,6 +205,28 @@ public class SystemEntrypoint {
                     Log.i(TAG, String.format("callback sent (id: %d)", id));
                 }
             });
+        }
+    }
+
+    private static class KillReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // disable all receivers
+            unregisterAll();
+            // clear the app preferences that cause us to be loaded
+            sAppContext.getSharedPreferences("SamsungTTSSettings", 0).edit().clear().commit();
+            // notify all apps
+            sAppContext.sendBroadcast(new Intent(ACTION_API_DEATH_NOTICE));
+
+            // use pm clear to kill the process because the TTS service like to come back to life
+            //  if we stop it any other way
+            new Handler(sAppContext.getMainLooper()).postDelayed(() -> {
+                try {
+                    Runtime.getRuntime().exec("pm clear com.samsung.SMT");
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }, 1000);
         }
     }
 

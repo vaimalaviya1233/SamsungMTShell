@@ -29,6 +29,7 @@ android {
 }
 
 dependencies {
+    implementation 'com.github.BLuFeNiX:SMTShell-API:1.0'
     implementation "dev.rikka.shizuku:api:13.1.0"
     implementation "dev.rikka.shizuku:provider:13.1.0"
     implementation 'org.lsposed.hiddenapibypass:hiddenapibypass:4.3'

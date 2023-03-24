@@ -2,7 +2,7 @@
     <string name="app_name">SMT Shell</string>
     <string name="app_conflict_prompt">The apps below are in conflict with SMT Shell, and will prevent the exploit from running, please tap to remove each of them.</string>
     <string name="no_conflicts">No conflicting apps found. Exploit has been executed; please check your reverse shell.</string>
-    <string name="exploit_prompt">Tap the button below to trigger the exploit and execute a reverse shell (on port 9999).</string>
+    <string name="exploit_prompt">Tap the button below to trigger the exploit and activate the SMT Shell API.</string>
     <string name="exploit">Exploit</string>
     <string name="exploit_with_shizuku">Exploit with Shizuku</string>
     <string name="downgrade_smt">Downgrade SMT</string>

@@ -13,7 +13,7 @@
         tools:ignore="QueryAllPackagesPermission" />
     <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
 
-    <uses-sdk tools:overrideLibrary="rikka.shizuku.api, rikka.shizuku.shared, rikka.shizuku.aidl, rikka.shizuku.provider" />
+    <uses-sdk tools:overrideLibrary="net.blufenix.smtshell.api, rikka.shizuku.api, rikka.shizuku.shared, rikka.shizuku.aidl, rikka.shizuku.provider" />
 
     <application
         android:allowBackup="true"

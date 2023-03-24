@@ -21,8 +21,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.samsung.SMT.lang.smtshell.shizuku.PackageInstallerUtils;
 
+import net.blufenix.smtshell.api.SMTShellAPI;
+
 import rikka.shizuku.Shizuku;
-import smtshell.api.SMTShellAPI;
 
 /**
  * We need to keep the minSdkVersion at 22 or lower, so use @RequiresApi to use newer stuff.
