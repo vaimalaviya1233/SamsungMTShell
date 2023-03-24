@@ -1,12 +1,22 @@
-# SamsungTTSSystemShell
+# SMTShell
 
 This tool allows most Samsung devices to achieve a `system` shell (UID 1000). It was patched in OneUI 5.1, but will work on Android 13 running OneUI 5.0 or older. It should work as far back and Android 9.0 (and maybe earlier).
 
-## Usage
+It also acts similar to Magisk or SuperSU, allowing apps to easily execute `system` commands via [SMTShell-API](https://github.com/BLuFeNiX/SMTShell-API/).
 
-1. Downgrade the TTS app to the version provided in this repo (this must be done after every reboot). `adb install -d ./com.samsung.SMT_v3.0.02.2.apk`
-2. Run this command to wait for the reverse shell: `adb shell nc -l -p 9999`
-3. Install and open the `langpoc` app.
+## Usage (with Shizuku)
+
+Simply run the app and grant Shizuku access.
+
+## Usage (no Shizuku)
+
+1. Downgrade the TTS app to the version provided (this must be done after every reboot):
+```
+adb install -d com.samsung.SMT_v3.0.02.2.apk
+```
+Alternatively, you can use `pm install -d /data/local/tmp/com.samsung.SMT_v3.0.02.2.apk` if you copy the file to your device first, via `adb push`
+
+2. Install and open the SMT Shell app, and follow the prompts.
 
 ## Licences & Origin
 
@@ -24,14 +34,4 @@ This project includes an unmodified Samsung APK, at `./smtshell/app/src/main/ass
 
 ### Changes from the original
 
-Please see the git commit history for a comprehensive list of changes. In brief:
-
-* Refactored nearly all the code
-* Replaced the reverse shell implementation
-* Updated dependencies and build system to latest versions  
-
-
-RUN git clone https://github.com/corellium/sud.git \
- && cd sud \
- && mkdir -p bin \
- && make CC=/root/sdk/ndk-bundle/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android29-clang
+Please see the git commit history for a comprehensive list of changes. Essentially everything was changed, and only the original exploit research remains in spirit.
