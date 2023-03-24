@@ -12,4 +12,8 @@
     <string name="example_title">Short Title</string>
     <string name="example_details">This is some longer detail about this button. Maybe the text will even wrap around the screen.</string>
     <string name="example_btn">click me</string>
+    <string name="perm_label_system_command">Execute Commands as System</string>
+    <string name="perm_desc_system_command">execute shell commands as system (uid 1000)</string>
+    <string name="perm_label_load_library">Load Native Libraries as System</string>
+    <string name="perm_desc_load_library">execute arbitrary code as system (uid 1000)</string>
 </resources>

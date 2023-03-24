@@ -6,8 +6,14 @@
     <permission android:name="smtshell.permission.SELF" android:protectionLevel="signature" />
     <uses-permission android:name="smtshell.permission.SELF" />
 
-    <permission android:name="smtshell.permission.SYSTEM_COMMAND" android:protectionLevel="dangerous" />
-    <permission android:name="smtshell.permission.LOAD_LIBRARY" android:protectionLevel="dangerous" />
+    <permission android:name="smtshell.permission.SYSTEM_COMMAND"
+        android:label="@string/perm_label_system_command"
+        android:description="@string/perm_desc_system_command"
+        android:protectionLevel="dangerous" />
+    <permission android:name="smtshell.permission.LOAD_LIBRARY"
+        android:label="@string/perm_label_load_library"
+        android:description="@string/perm_desc_load_library"
+        android:protectionLevel="dangerous" />
 
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"
         tools:ignore="QueryAllPackagesPermission" />
