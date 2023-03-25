@@ -7,6 +7,7 @@ It also acts similar to Magisk or SuperSU, allowing apps to easily execute `syst
 <div align="center">
     <img src="screenshots/01.png" width="30%" />
     <img src="screenshots/02.png" width="30%" /> 
+    <img src="screenshots/03.png" width="30%" /> 
 </div>
 
 ## Usage (with Shizuku)
