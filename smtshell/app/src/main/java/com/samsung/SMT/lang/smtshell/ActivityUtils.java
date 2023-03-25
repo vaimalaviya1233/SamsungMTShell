@@ -17,4 +17,9 @@ public class ActivityUtils {
         context.startActivity(intent);
     }
 
+    public static void launch(Context context, Class<? extends Activity> activityClass) {
+        Intent intent = new Intent(context, activityClass);
+        context.startActivity(intent);
+    }
+
 }

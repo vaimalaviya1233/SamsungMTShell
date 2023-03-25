@@ -35,7 +35,13 @@ public class AllTheButtons extends AppCompatActivity {
                 });
             }),
             new SMTCapability(
-                    "Launch reverse shell",
+                    "Local System Shell",
+                    "Connect to a system shell directly in the app!",
+                    "Launch", v -> {
+                ActivityUtils.launch(AllTheButtons.this, ShellActivity.class);
+            }),
+            new SMTCapability(
+                    "Reverse Shell",
                     "Start a reverse shell that can be connected to via:\n adb shell nc -l -p 9999",
                     "Launch", v -> {
                 SMTShellAPI.loadLibrary(this, getApplicationInfo().nativeLibraryDir + "/" + "libsmtshell.so");
