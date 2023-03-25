@@ -16,7 +16,7 @@ Simply run the app and grant Shizuku access.
 
 ## Usage (no Shizuku)
 
-1. Downgrade the TTS app to the version provided (this must be done after every reboot):
+1. Downgrade the TTS app to [the version provided](https://raw.githubusercontent.com/BLuFeNiX/SMTShell/master/smtshell/app/src/main/assets/com.samsung.SMT_v3.0.02.2.apk) (this must be done after every reboot):
 ```
 adb install -d com.samsung.SMT_v3.0.02.2.apk
 ```
