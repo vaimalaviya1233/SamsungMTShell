@@ -1,4 +1,5 @@
 import static net.blufenix.smtshell.api.InternalAPI.ACTION_DEACTIVATE;
+import static net.blufenix.smtshell.api.InternalAPI.ACTION_LOAD_SHIZUKU;
 import static net.blufenix.smtshell.api.InternalAPI.PERMISSION_SELF;
 import static net.blufenix.smtshell.api.SMTShellAPI.ACTION_API_DEATH_NOTICE;
 import static net.blufenix.smtshell.api.SMTShellAPI.ACTION_API_PING;
@@ -25,6 +26,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentSender;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
@@ -36,7 +39,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
+import java.util.Map;
+
+import dalvik.system.PathClassLoader;
 
 @SuppressLint("PrivateApi")
 @RequiresApi(api = Build.VERSION_CODES.P)
@@ -71,12 +79,45 @@ public class SystemEntrypoint {
         // internal receiver to kill the API
         register(new KillReceiver(), ACTION_DEACTIVATE, PERMISSION_SELF);
 
+        register(new ShizukuReceiver(), ACTION_LOAD_SHIZUKU, PERMISSION_SELF);
+
         // send initial ping to our app only
         Log.i(TAG, "sending ready msg");
         sAppContext.sendBroadcast(new Intent(ACTION_API_READY).setPackage("com.samsung.SMT.lang.smtshell"));
 
+//        setEnv("SHIZUKU_APK_PATH", "/data/app/~~mE71vzq-Xqha70OeGJfF3w==/moe.shizuku.privileged.api-cP_lWnfaxMTnfgZAQf3sYQ==/base.apk");
+//        Log.i(TAG, System.getenv("SHIZUKU_APK_PATH"));
         Log.i(TAG, "API ready");
+
+
+
+//        03-26 16:01:10.902 31466 31516 I Shizuku : /system/bin/app_process
+//        03-26 16:01:10.902 31466 31516 I Shizuku : -Djava.class.path=/data/app/~~mE71vzq-Xqha70OeGJfF3w==/moe.shizuku.privileged.api-cP_lWnfaxMTnfgZAQf3sYQ==/base.apk
+//        03-26 16:01:10.903 31466 31516 I Shizuku : -Dshizuku.library.path=/data/app/~~mE71vzq-Xqha70OeGJfF3w==/moe.shizuku.privileged.api-cP_lWnfaxMTnfgZAQf3sYQ==/base.apk!/lib/arm64-v8a
+//        03-26 16:01:10.903 31466 31516 I Shizuku : -Xcompiler-option
+//        03-26 16:01:10.903 31466 31516 I Shizuku : --debuggable
+//        03-26 16:01:10.903 31466 31516 I Shizuku : -XjdwpProvider:adbconnection
+//        03-26 16:01:10.903 31466 31516 I Shizuku : -XjdwpOptions:suspend=n,server=y
+//        03-26 16:01:10.903 31466 31516 I Shizuku : /system/bin
+//        03-26 16:01:10.903 31466 31516 I Shizuku : --nice-name=shizuku_server
+//        03-26 16:01:10.903 31466 31516 I Shizuku : rikka.shizuku.server.ShizukuService
+//        03-26 16:01:10.903 31466 31516 I Shizuku : --debug
+//
+//        Log.i(TAG, "done?");
     }
+
+//    public static void setEnv(String key, String value) {
+//        try {
+//            Map<String, String> env = System.getenv();
+//            Class<?> cl = env.getClass();
+//            Field field = cl.getDeclaredField("m");
+//            field.setAccessible(true);
+//            Map<String, String> writableEnv = (Map<String, String>) field.get(env);
+//            writableEnv.put(key, value);
+//        } catch (Exception e) {
+//            throw new IllegalStateException("Failed to set environment variable", e);
+//        }
+//    }
 
     private static BroadcastReceiver register(BroadcastReceiver receiver, String action, String permission) {
         sAppContext.registerReceiver(receiver, new IntentFilter(action), permission, null);
@@ -227,6 +268,38 @@ public class SystemEntrypoint {
                     throw new RuntimeException(e);
                 }
             }, 1000);
+        }
+    }
+
+    private static class ShizukuReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            try {
+                PackageInfo pkg = sAppContext.getPackageManager()
+                        .getPackageInfo("moe.shizuku.privileged.api", PackageManager.GET_META_DATA);
+
+                Log.i(TAG, "Loading shizuku");
+                AsyncTask.execute(() -> {
+                    try {
+//                        03-26 16:01:10.902 31466 31516 I Shizuku : -Djava.class.path=/data/app/~~mE71vzq-Xqha70OeGJfF3w==/moe.shizuku.privileged.api-cP_lWnfaxMTnfgZAQf3sYQ==/base.apk
+//        03-26 16:01:10.903 31466 31516 I Shizuku : -Dshizuku.library.path=/data/app/~~mE71vzq-Xqha70OeGJfF3w==/moe.shizuku.privileged.api-cP_lWnfaxMTnfgZAQf3sYQ==/base.apk!/lib/arm64-v8a
+
+                        String apk = pkg.applicationInfo.sourceDir;
+                        String libpath = pkg.applicationInfo.nativeLibraryDir.replace("/lib/arm64", "/base.apk!/lib/arm64-v8a");
+                        Log.i(TAG, apk);
+                        Log.i(TAG, libpath);
+                        PathClassLoader pcl = new PathClassLoader(apk, libpath, ClassLoader.getSystemClassLoader());
+                        Class<?> ss = pcl.loadClass("rikka.shizuku.server.ShizukuService");
+                        ss.getMethod("main", String[].class).invoke(null, (Object) new String[0]);
+                    } catch (NoSuchMethodException | ClassNotFoundException | IllegalAccessException |
+                             InvocationTargetException e) {
+                        Log.e(TAG, "oh no!", e);
+                    }
+                });
+
+            } catch (PackageManager.NameNotFoundException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 

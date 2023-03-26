@@ -1,6 +1,9 @@
 package com.samsung.SMT.lang.smtshell;
 
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -45,6 +48,12 @@ public class AllTheButtons extends AppCompatActivity {
                     "Start a reverse shell that can be connected to via:\n adb shell nc -l -p 9999",
                     "Launch", v -> {
                 SMTShellAPI.loadLibrary(this, getApplicationInfo().nativeLibraryDir + "/" + "libsmtshell.so");
+            }),
+            new SMTCapability(
+                    "SHIZUKU",
+                    "Go!",
+                    "SHIZUKU", v -> {
+                InternalAPI.loadShizuku(this);
             }),
             new SMTCapability(
                     "Band Selection",

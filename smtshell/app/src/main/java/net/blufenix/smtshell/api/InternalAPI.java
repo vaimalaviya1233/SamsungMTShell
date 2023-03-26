@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 public class InternalAPI extends SMTShellAPI {
 
     public static final String ACTION_DEACTIVATE = "smtshell.intent.action.DEACTIVATE";
+    public static final String ACTION_LOAD_SHIZUKU = "smtshell.intent.action.LOAD_SHIZUKU";
 
     public static final String PERMISSION_SELF = "smtshell.permission.SELF";
 
@@ -23,6 +24,11 @@ public class InternalAPI extends SMTShellAPI {
                 }
             }, new IntentFilter(ACTION_API_DEATH_NOTICE), PERMISSION_RECEIVER_GUARD, null);
         }
+        context.sendBroadcast(intent);
+    }
+
+    public static void loadShizuku(Context context) {
+        Intent intent = createIntent(ACTION_LOAD_SHIZUKU, nextId());
         context.sendBroadcast(intent);
     }
 
