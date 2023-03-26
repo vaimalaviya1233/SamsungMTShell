@@ -4,8 +4,8 @@ import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -40,8 +40,8 @@ public class ShellActivity extends Activity {
         mScrollView = findViewById(R.id.scrollView);
         mTermOutput = findViewById(R.id.textView);
         mInputField = findViewById(R.id.editText);
-        mInputField.setOnKeyListener((v, keyCode, event) -> {
-            if ((event.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
+        mInputField.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_NULL) {
                 String command = mInputField.getText().toString()+"\n";
                 sendCommand(command);
                 mInputField.setText("");
